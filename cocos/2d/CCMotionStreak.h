@@ -127,6 +127,7 @@ protected:
     float _stroke;
     float _fadeDelta;
     float _minSeg;
+    float _opacity;
 
     unsigned int _maxPoints;
     unsigned int _nuPoints;
