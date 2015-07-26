@@ -554,7 +554,7 @@ void Renderer::visitRenderQueue(RenderQueue& queue)
     const auto& transQueue = queue.getSubQueue(RenderQueue::QUEUE_GROUP::TRANSPARENT_3D);
     if (transQueue.size() > 0)
     {
-        glEnable(GL_DEPTH_TEST);
+        glDisable(GL_DEPTH_TEST);
         glDepthMask(false);
         
         for (auto it = transQueue.cbegin(); it != transQueue.cend(); ++it)
