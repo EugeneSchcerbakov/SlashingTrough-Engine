@@ -135,8 +135,8 @@ void ScrollView::onSizeChanged()
     Layout::onSizeChanged();
     _topBoundary = _contentSize.height;
     _rightBoundary = _contentSize.width;
-    float bounceBoundaryParameterX = _contentSize.width / 3.0f;
-    float bounceBoundaryParameterY = _contentSize.height / 3.0f;
+    float bounceBoundaryParameterX = _contentSize.width / 11.0f;
+    float bounceBoundaryParameterY = _contentSize.height / 11.0f;
     _bounceTopBoundary = _contentSize.height - bounceBoundaryParameterY;
     _bounceBottomBoundary = bounceBoundaryParameterY;
     _bounceLeftBoundary = bounceBoundaryParameterX;
