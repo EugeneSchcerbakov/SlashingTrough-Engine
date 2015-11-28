@@ -40,11 +40,9 @@ MotionStreak::MotionStreak()
 , _startingPositionInitialized(false)
 , _texture(nullptr)
 , _blendFunc(BlendFunc::ALPHA_NON_PREMULTIPLIED)
-, _positionR(Vec2::ZERO)
 , _stroke(0.0f)
 , _fadeDelta(0.0f)
 , _minSeg(0.0f)
-, _opacity(1.0f)
 , _maxPoints(0)
 , _nuPoints(0)
 , _previousNuPoints(0)
@@ -107,7 +105,7 @@ bool MotionStreak::initWithFade(float fade, float minSeg, float stroke, const Co
     ignoreAnchorPointForPosition(true);
     _startingPositionInitialized = false;
 
-    _positionR = Vec2::ZERO;
+    _positionR.setZero();
     _fastMode = true;
     _minSeg = (minSeg == -1.0f) ? stroke/5.0f : minSeg;
     _minSeg *= _minSeg;
@@ -170,6 +168,11 @@ float MotionStreak::getPositionX() const
     return _positionR.x;
 }
 
+Vec3 MotionStreak::getPosition3D() const
+{
+    return Vec3(_positionR.x, _positionR.y, getPositionZ());
+}
+
 void MotionStreak::setPositionX(float x)
 {
     if (!_startingPositionInitialized) {
@@ -229,12 +232,13 @@ const BlendFunc& MotionStreak::getBlendFunc(void) const
 
 void MotionStreak::setOpacity(GLubyte opacity)
 {
-    _opacity = (float)opacity / 255.0f;
+    CCASSERT(false, "Set opacity no supported");
 }
 
 GLubyte MotionStreak::getOpacity(void) const
 {
-    return _opacity * 255;
+    CCASSERT(false, "Opacity no supported");
+    return 0;
 }
 
 void MotionStreak::setOpacityModifyRGB(bool bValue)
@@ -296,7 +300,7 @@ void MotionStreak::update(float delta)
             }else
                 newIdx2 = newIdx*8;
 
-            const GLubyte op = (GLubyte)(_pointState[newIdx] * 255.0f * _opacity);
+            const GLubyte op = (GLubyte)(_pointState[newIdx] * 255.0f);
             _colorPointer[newIdx2+3] = op;
             _colorPointer[newIdx2+7] = op;
         }
@@ -331,8 +335,8 @@ void MotionStreak::update(float delta)
         *((Color3B*)(_colorPointer + offset+4)) = _displayedColor;
 
         // Opacity
-        _colorPointer[offset+3] = 255 * _opacity;
-        _colorPointer[offset+7] = 255 * _opacity;
+        _colorPointer[offset+3] = 255;
+        _colorPointer[offset+7] = 255;
 
         // Generate polygon
         if(_nuPoints > 0 && _fastMode )
@@ -382,21 +386,9 @@ void MotionStreak::onDraw(const Mat4 &transform, uint32_t flags)
 
     GL::bindTexture2D( _texture->getName() );
 
-#ifdef EMSCRIPTEN
-    // Size calculations from ::initWithFade
-    setGLBufferData(_vertices, (sizeof(Vec2) * _maxPoints * 2), 0);
-    glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_POSITION, 2, GL_FLOAT, GL_FALSE, 0, 0);
-
-    setGLBufferData(_texCoords, (sizeof(Tex2F) * _maxPoints * 2), 1);
-    glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_TEX_COORD, 2, GL_FLOAT, GL_FALSE, 0, 0);
-
-    setGLBufferData(_colorPointer, (sizeof(GLubyte) * _maxPoints * 2 * 4), 2);
-    glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);
-#else
     glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_POSITION, 2, GL_FLOAT, GL_FALSE, 0, _vertices);
     glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_TEX_COORD, 2, GL_FLOAT, GL_FALSE, 0, _texCoords);
     glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, _colorPointer);
-#endif // EMSCRIPTEN
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, (GLsizei)_nuPoints*2);
     CC_INCREMENT_GL_DRAWN_BATCHES_AND_VERTICES(1, _nuPoints*2);
