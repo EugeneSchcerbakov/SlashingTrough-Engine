@@ -597,12 +597,13 @@ void Renderer::visitRenderQueue(RenderQueue& queue)
     const auto& transQueue = queue.getSubQueue(RenderQueue::QUEUE_GROUP::TRANSPARENT_3D);
     if (transQueue.size() > 0)
     {
-        glEnable(GL_DEPTH_TEST);
+        //glEnable(GL_DEPTH_TEST); // CHECK for proper 2d character drawing
+        glDisable(GL_DEPTH_TEST); // CHECK for proper 2d character drawing
         glDepthMask(false);
         glEnable(GL_BLEND);
         glEnable(GL_CULL_FACE);
 
-        RenderState::StateBlock::_defaultState->setDepthTest(true);
+        RenderState::StateBlock::_defaultState->setDepthTest(false); // CHECK for proper 2d character drawing
         RenderState::StateBlock::_defaultState->setDepthWrite(false);
         RenderState::StateBlock::_defaultState->setBlend(true);
         RenderState::StateBlock::_defaultState->setCullFace(true);

@@ -43,6 +43,7 @@ MotionStreak::MotionStreak()
 , _stroke(0.0f)
 , _fadeDelta(0.0f)
 , _minSeg(0.0f)
+, _opacity(1.0f)
 , _maxPoints(0)
 , _nuPoints(0)
 , _previousNuPoints(0)
@@ -232,13 +233,12 @@ const BlendFunc& MotionStreak::getBlendFunc(void) const
 
 void MotionStreak::setOpacity(GLubyte opacity)
 {
-    CCASSERT(false, "Set opacity no supported");
+    _opacity = (float)opacity / 255.0f;
 }
 
 GLubyte MotionStreak::getOpacity(void) const
 {
-    CCASSERT(false, "Opacity no supported");
-    return 0;
+    return _opacity * 255;
 }
 
 void MotionStreak::setOpacityModifyRGB(bool bValue)
@@ -300,7 +300,7 @@ void MotionStreak::update(float delta)
             }else
                 newIdx2 = newIdx*8;
 
-            const GLubyte op = (GLubyte)(_pointState[newIdx] * 255.0f);
+            const GLubyte op = (GLubyte)(_pointState[newIdx] * 255.0f * _opacity);
             _colorPointer[newIdx2+3] = op;
             _colorPointer[newIdx2+7] = op;
         }
@@ -335,8 +335,8 @@ void MotionStreak::update(float delta)
         *((Color3B*)(_colorPointer + offset+4)) = _displayedColor;
 
         // Opacity
-        _colorPointer[offset+3] = 255;
-        _colorPointer[offset+7] = 255;
+        _colorPointer[offset+3] = 255 * _opacity;
+        _colorPointer[offset+7] = 255 * _opacity;
 
         // Generate polygon
         if(_nuPoints > 0 && _fastMode )
